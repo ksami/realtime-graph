@@ -14,6 +14,8 @@ var timer = setInterval(function(){
     var json = $.parseJSON(data);
     var content = json["with"][0]["content"];
     myChart.addData([content["memory"]["total_alloc"]], content["timestamp"]);
+
+    //make graph move if more than 20 points
     if(count > 20){
       myChart.removeData();
     }
@@ -25,7 +27,7 @@ var timer = setInterval(function(){
 
 $("button").click(function(){
   clearInterval(timer);
-})
+});
 
 var lineChartData = {
     labels : [],
@@ -39,7 +41,7 @@ var lineChartData = {
                        pointHighlightFill : "#fff",
                        pointHighlightStroke : "rgba(220,220,220,1)",
                        data : []
-                   },
+                   }
     ]
 };
 
