@@ -4,23 +4,25 @@ import (
     "fmt"
     "io/ioutil"
     "net/http"
-    "strings"
+    "os"
     "log"
 )
 
-func routeIndex(w http.ResponseWriter, r *http.Request) {
-    // parse arguments
-    r.ParseForm()
+func main() {
+    // Routers
+    http.HandleFunc("/", routeIndex)
+    http.HandleFunc("/details", routeDetails)
 
-    // print form information in server side
-    fmt.Println(r.Form)
-    fmt.Println("path", r.URL.Path)
-    for k, v := range r.Form {
-        fmt.Println("key:", k)
-        arr := strings.Split(strings.Join(v, ""), ",")
-        fmt.Println("val:", arr)
+    // set ip and port
+    bind := fmt.Sprintf("%s:%s", os.Getenv("OPENSHIFT_GO_IP"), os.Getenv("OPENSHIFT_GO_PORT"))
+    fmt.Printf("listening on %s...", bind)
+    err := http.ListenAndServe(bind, nil)
+    if err != nil {
+        panic(err)
     }
-    
+}
+
+func routeIndex(w http.ResponseWriter, r *http.Request) {
     http.ServeFile(w, r, r.URL.Path[1:])
 }
 
@@ -37,16 +39,4 @@ func routeDetails(w http.ResponseWriter, r *http.Request) {
 
     // send to client
     fmt.Fprintf(w, string(json[:]))
-}
-
-func main() {
-    // Routers
-    http.HandleFunc("/", routeIndex)
-    http.HandleFunc("/details", routeDetails)
-
-    // set port
-    err := http.ListenAndServe(":9090", nil)
-    if err != nil {
-        log.Fatal("ListenAndServe: ", err)
-    }
 }
